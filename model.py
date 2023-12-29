@@ -17,34 +17,37 @@ class feed_forward(nn.Module):
         )
 
     def forward(self, x):
-        return self.linear(x) + x
+        return self.linear(x) 
 
 
-class Attention(nn.Module):
-    def __init__(self, heads: int, hidden_dim: int, dropout: float):
+class attention(nn.Module):
+    def __init__(self, embedded_dim):
         super().__init__()
-        self.heads = heads
-        self.hidden_dim = hidden_dim
-        self.attn_dim = self.hidden_dim * heads
+        self.embedded_dim = embedded_dim
+        # self.attn_dim = self.hidden_dim * 3
         self.to_qkv = nn.Sequential(
-            nn.LayerNorm(self.hidden_dim),
-            nn.Linear(self.hidden_dim, self.attn_dim),
+            nn.LayerNorm(self.embedded_dim),
+            nn.Linear(self.embedded_dim, self.embedded_dim * 3),
             nn.GELU(),
-            nn.Dropout(dropout)
+            nn.Dropout(0.5)
         )
 
     def forward(self, x):
-
-        # x = rearrange(x, 'b h w c -> b n (h w)')
-        qkv = self.to_qkv(x) #.chunk(2, dim=0)
+        # b n d -> b n d
+        q = self.to_qkv(x) #.chunk(3, dim=1)
+        print(q.shape)
         
-        return qkv
+        return None
 
     
 class Transformer(nn.Module):
     def __init__(self):
         super().__init__()
-        self.block = None
+        self.block = attention(1, )
+
+    def forward(self, x):
+        return self.block(x)
+
 
 class ViT(nn.Module):
     def __init__(self, num_heads=8, patch_width=16, patch_height=16):
